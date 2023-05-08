@@ -20,4 +20,4 @@ $db= App::resolve(Database::class);
     ]);
 
     header('location: /notes');
-    exit();
+    exit;

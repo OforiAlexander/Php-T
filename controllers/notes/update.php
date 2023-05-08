@@ -3,46 +3,44 @@
 use Core\App;
 use Core\Database;
 use Core\Validator;
-$db= App::resolve(Database::class);
 
- $currentUseId=1;
+$db = App::resolve(Database::class);
 
+$email = $_POST['email'];
+$password = $_POST['password'];
 
-    // show the note for the user or find the note for the user
+$errors = [];
+if (Validator::email($email)) {
+   $errors['email'] = 'Please provide a valid email address.';
+}
 
- $note = $db->queries('select * from note where id= :id', [
-     'id'=> $_POST['id']
-     ])->findOrAbout();
+if (!Validator::string($password, 7, 255)) {
+    $errors['password'] = 'Please provide a password of at least seven characters.';
+}
 
-     //authorize that the current user can edit the note
+if (! empty($errors)) {
+    return view('registration/create.view.php', [
+        'errors' => $errors
+    ]);
+}
 
-     authorize($note['user_id']=== $currentUseId);
+$user = $db->query('select * from users where email = :email', [
+    'email' => $email
+])->find();
 
-     //validate the form for the user
-
-   $errors=[];
-   $validator= new Validator();
-
-   if (! $validator->string($_POST['body'], 1, 1000)) {
-    $errors['body'] = 'A body of no more than 1,000 characters is required';
-    }
-
-    //if no validation errors update  the record in the user database
-
-    if(count($errors)){
-        return view('notes/edit.view.php', [
-            'heading'=> 'Update Note',
-            'errors'=> $errors,
-            'note'=> $note
-        ]);
-    }
-
-    $db->queries('update note set body = :body where id = :id', [
-        'id'=> $_POST['id'],
-        'body'=> $_POST['body']
+if ($user) {
+    header('location: /');
+    exit;
+} else {
+    $db->query('INSERT INTO users(email, password) VALUES(:email, :password)', [
+        'email' => $email,
+        'password' => $password // NEVER store database passwords in clear text. We'll fix this in the login form episode. :)
     ]);
 
-    //redirect the user
+    $_SESSION['user'] = [
+        'email' => $email
+    ];
 
-    header('location: /notes');
-    exit();
+    header('location: /');
+    exit;
+}

@@ -1,35 +1,52 @@
 <?php
 
-use Core\Database;
-use Core\Validator;
-use Core\App;
+ use Core\Database;
+ use Core\Validator;
+ use Core\App;
+
+ $db = App::resolve(Database::class);
 
 
-$email = $_POST['email'];
-$password = $_POST['password'];
+ $email = $_POST['email'];
+ $password = $_POST['password'];
 
-//validate the user of the input
-$email=[];
-if(! Validator::email($email)){
-    $errors['email']= "Please provide a valid email address";
-}
-if(! Validator::string($password, 7, 255)){
-    $errors['password']= "Please provide a password of at least seven characters long";
-}
+//  validate the user of the input
+ $email=[];
+ if (!Validator::email($email)) {
+     $errors['email'] = 'Please provide a valid email address.';
+  }
+ 
+  if (!Validator::string($password, 7, 255)) {
+      $errors['password'] = 'Please provide a password of at least seven characters.';
+  }
+ 
+  if (! empty($errors)) {
+      return view('registration/create.view.php', [
+          'errors' => $errors
+      ]);
+  }
+ 
 
-if( ! empty($errors)){
-    return view('registration/create.view.php', [
-        'errors' => $errors
-    ]);
-}
+  $user= $db->queries('select * from users where email = :email', [
+     'email'=> $email
+ ])->find();
 
-$db = App::resolve(Database::class);
-//check if the input or the account does not already exist
- $result= $db->queries('select * from users where email = :email', [
-    'email'=> $email
-])->find();
+    if($user){
+     header('location: /');
+     exit;
+    }else{
 
-dd($result);
-   //if yes then alert the user and redirect to the login page
+     $db->queries('INSERT INTO users (email, password ) VALUES (:email, :password)',[
+         'email'=> $email,
+         'password'=> $password
+        ]);
 
-   //if not save the input to the database and log the user in and redirect
+        $_SESSION['users']=[
+         'email'=>$email
+        ];
+
+        header('location: /');
+        exit;
+    }
+
+
