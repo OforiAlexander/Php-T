@@ -1,5 +1,6 @@
 <?php
 
+use Core\Session;
 
 session_start();
 //working with sessions in php
@@ -26,6 +27,7 @@ $method= $_POST['__method_delete'] ?? $_SERVER['REQUEST_METHOD'];
  
  $router->route($uri, $method);
 
+Session::unflash();
 
 
 
