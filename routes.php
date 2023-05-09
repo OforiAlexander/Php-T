@@ -16,10 +16,11 @@ $router->get('/notes/create', 'controllers/notes/create.php');
 
 //section routes
 $router->get('/register', 'controllers/registration/create.php')->only('guests');
-$router->post('/register', 'controllers/registration/store.php');
+$router->post('/register', 'controllers/registration/store.php')->only('guests');
 
 // login
-$router->get('/login', 'controllers/sessions/create.php')->only('guests');
-$router->post('/sessions', 'controllers/sessions/store.php')->only('guests');
+$router->get('/login', 'controllers/session/create.php')->only('guests');
+$router->post('/session', 'controllers/session/store.php')->only('guests');
+$router->delete('/session', 'controllers/session/destroy.php')->only('auth');
 
 

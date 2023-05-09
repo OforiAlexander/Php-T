@@ -24,7 +24,7 @@ if(! $validator::email($email)){
  }
 
 if(!empty($errors)){
-    return view('sessions/create.view.php',[
+    return view('session/create.view.php',[
         'errors'=>$errors
     ]);
 }
@@ -35,18 +35,8 @@ $user = $db->queries('select * from users where email = :email',[
     'email'=>$email,
 ])->find();
 
-if(!$user){
-    return view('sessions/create.view.php',[
-        'errors'=>
-        [
-            'email'=> 'No matching email found for the address given'
-        ]
-    ]);
-}
-
-// now check if the user password given is what was saved upon register no the hash one but the real one or the actual one
-
-if(password_verify($password, $user['password'])){
+if($user){
+  if(password_verify($password, $user['password'])){
     login([
         'email'=> $email
     ]);
@@ -54,10 +44,12 @@ if(password_verify($password, $user['password'])){
     header('location: /');
     exit;
 }
+}
+
 
 //if the if function does not pick or the password given does not match the one registed with show the error below
 
-return view('sessions/create.view.php',[
+return view('session/create.view.php',[
     'errors'=>
     [
         'email'=> 'No matching account found for the email and password given'

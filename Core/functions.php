@@ -39,11 +39,21 @@ function view($path, $attribute=[]){
 
 //this is a login function for the user
 
-function login($user){
-  //this is just the login in session for the user
+function login($user)
+{
+      $_SESSION['user']=[
+        'email'=> $user['email'],
+    ];
 
-  $_SESSION['user']=[
-    'email'=> $user['email'],
-];
+    session_regenerate_id(true);
+}
 
+function logout()
+{
+$_SESSION= [];
+session_destroy();
+
+//this next code is to destroy the cookie inside the memory of the user browser
+$params = session_get_cookie_params();
+setcookie('PHPSESSID' , '', time() - 3600, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
 }
