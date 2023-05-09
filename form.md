@@ -1,45 +1,7 @@
-
-use Core\App;
-use Core\Database;
-use Core\Validator;
-
-$db = App::resolve(Database::class);
-
-$email = $_POST['email'];
-$password = $_POST['password'];
-
-$errors = [];
-if (! Validator::email($email)) {
-   $errors['email'] = 'Please provide a valid email address.';
-}
-
-if (! Validator::string($password, 7, 255)) {
-    $errors['password'] = 'Please provide a password of at least seven characters.';
-}
-
-if (! empty($errors)) {
-    return view('registration/create.view.php', [
-        'errors' => $errors
-    ]);
-}
-
-$user = $db->queries('select * from users where email = :email', [
-    'email' => $email
-])->find();
-
-if ($user) {
-    header('location: /');
-    exit();
-} else {
-    $db->queries('INSERT INTO users(email, password) VALUES(:email, :password)', [
-        'email' => $email,
-        'password' => $password // NEVER store database passwords in clear text. We'll fix this in the login form episode. :)
-    ]);
-
-    $_SESSION['user'] = [
-        'email' => $email
-    ];
-
-    header('location: /');
-    exit();
-}
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `email` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_idx` (`email`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

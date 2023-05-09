@@ -1,52 +1,53 @@
 <?php
 
- use Core\Database;
- use Core\Validator;
- use Core\App;
+use Core\Validator;
+use Core\App;
+use Core\Database;
 
- $db = App::resolve(Database::class);
+$email = $_POST['email'];
+$password = $_POST['password'];
+$errors=[];
+$validator= new Validator();
 
 
- $email = $_POST['email'];
- $password = $_POST['password'];
+if(! $validator::email($email)){
+    $errors['email']= 'Please provide a valid email address';
+}
 
-//  validate the user of the input
- $email=[];
- if (!Validator::email($email)) {
-     $errors['email'] = 'Please provide a valid email address.';
-  }
- 
-  if (!Validator::string($password, 7, 255)) {
-      $errors['password'] = 'Please provide a password of at least seven characters.';
-  }
- 
-  if (! empty($errors)) {
-      return view('registration/create.view.php', [
-          'errors' => $errors
+
+ if(! $validator::string($password, 7 , 255)){
+     $errors['password']= 'Please provide a valid password address';
+ }
+
+  if(! empty($errors)){
+      return view('registration/create.view.php',[
+          'errors'=> $errors
       ]);
   }
- 
 
-  $user= $db->queries('select * from users where email = :email', [
-     'email'=> $email
- ])->find();
+  $db = App::resolve(Database::class);
 
-    if($user){
-     header('location: /');
-     exit;
-    }else{
+  $user = $db->queries('select * from users where email = :email',[
+    'email'=>$email
+  ])->find();
 
-     $db->queries('INSERT INTO users (email, password ) VALUES (:email, :password)',[
-         'email'=> $email,
-         'password'=> $password
-        ]);
-
-        $_SESSION['users']=[
-         'email'=>$email
-        ];
-
-        header('location: /');
-        exit;
-    }
+if($user){
 
 
+    header('location: /');
+    exit;
+
+}else{
+    $db->queries('INSERT INTO users (email, password ) VALUES (:email, :password)',[
+        'email'=> $email,
+        'password'=> password_hash($password, PASSWORD_BCRYPT)
+       ]);
+
+    $_SESSION['user']=[
+        'email'=>$email
+    ];
+
+
+    header('location: /');
+    exit;
+}
