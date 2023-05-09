@@ -36,3 +36,14 @@ function view($path, $attribute=[]){
   extract($attribute);
   require base_path('Views/' . $path);
 }
+
+//this is a login function for the user
+
+function login($user){
+  //this is just the login in session for the user
+
+  $_SESSION['user']=[
+    'email'=> $user['email'],
+];
+
+}
