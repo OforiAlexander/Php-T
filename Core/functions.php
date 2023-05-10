@@ -26,6 +26,8 @@ function authorize($condition, $status=Response::FORBIDDEN){
   if(!$condition){
     abort($status);
   }
+
+  return true;
 }
 
 function base_path($path){
@@ -34,7 +36,7 @@ function base_path($path){
 
 function view($path, $attribute=[]){
   extract($attribute);
-  require base_path('Views/' . $path);
+  require base_path('views/' . $path);
 }
 
 // redirect function
@@ -42,4 +44,8 @@ function view($path, $attribute=[]){
 function redirect($path){
   header("location: {$path}");
   exit();
+}
+
+function old($key, $default = ''){
+ return Core\Session::get('old')[$key] ?? $default;
 }
